@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { setOtp } from "../../../../store/authSlice";
 import Button from "../../../../components/shared/Button/Button";
 import Card from "../../../../components/shared/Card/Card";
 import TextInput from "../../../../components/shared/TextInput/TextInput";
@@ -6,13 +8,16 @@ import { sendOtp } from "../../../../http";
 import styles from "../StepPhoneEmail.module.css";
 const Phone = ({ onNext }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
+  const dispatch = useDispatch();
   const handlePhoneNumber = (event) => {
     setPhoneNumber(event.target.value);
   };
 
   async function submit() {
-    const response = await sendOtp({ phone: phoneNumber });
-    console.log("response :", response && response);
+    const { data } = await sendOtp({ phone: phoneNumber });
+    console.log("data:", data);
+    dispatch(setOtp({ phone: data.phone, hash: data.hash }));
+    onNext();
   }
 
   return (

@@ -7,18 +7,13 @@ import {
   useLocation,
   Outlet,
 } from "react-router-dom";
+import { useSelector } from "react-redux";
 import Home from "./pages/Home/Home";
 import Navigation from "./components/shared/Navigation/Navigation";
 
 import Authenticate from "./pages/Authenticate/Authenticate";
 import Activate from "./pages/Activate/Activate";
-import userEvent from "@testing-library/user-event";
 import Rooms from "./pages/Rooms/Rooms";
-
-const isAuth = false;
-const user = {
-  activated: false,
-};
 
 function App() {
   return (
@@ -43,6 +38,7 @@ function App() {
 }
 
 function GuestRoute() {
+  const { isAuth } = useSelector((state) => state.auth);
   let location = useLocation();
 
   if (isAuth) {
@@ -52,6 +48,8 @@ function GuestRoute() {
   return <Outlet />;
 }
 function SemiProtectedRoute() {
+  const { isAuth, user } = useSelector((state) => state.auth);
+
   let location = useLocation();
 
   if (!isAuth) {
@@ -63,6 +61,8 @@ function SemiProtectedRoute() {
   }
 }
 function ProtectedRoute() {
+  const { isAuth, user } = useSelector((state) => state.auth);
+
   let location = useLocation();
 
   if (!isAuth) {
