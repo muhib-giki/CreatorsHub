@@ -17,7 +17,7 @@ const Home = () => {
     navigate("/authenticate");
   };
   return (
-    <div className={styles.cardWrapper}>
+    <div className="cardWrapper">
       <Card title="Welcome to CodersHub" icon="wavinghand">
         <p className={styles.text}>
           We are pleased to have you here in CodersHub. Here we get together to

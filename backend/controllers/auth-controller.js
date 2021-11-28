@@ -64,12 +64,73 @@ class AuthController {
       _id: user._id,
       activated: false,
     });
+    await tokenService.storeRefreshToken(refreshToken, user._id);
     res.cookie("refreshToken", refreshToken, {
       maxAge: 1000 * 60 * 60 * 24 * 30,
       httpOnly: true,
     });
+    res.cookie("accessToken", accessToken, {
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      httpOnly: true,
+    });
+
     const userDto = new UserDto(user);
-    res.json({ accessToken, user: userDto });
+    res.json({ user: userDto, auth: true });
+  }
+  async refresh(req, res) {
+    // get refresh token from cookie
+    const { refreshToken: refreshTokenFromCookie } = req.cookies;
+
+    // check if token is valid
+    let userData;
+    try {
+      userData = await tokenService.verifyRefreshToken(refreshTokenFromCookie);
+    } catch (error) {
+      return res.status(401).json({
+        message: "Invalid Token",
+      });
+    }
+    // check if token is in database
+    try {
+      const token = await tokenService.findRefreshToken(
+        userData._id,
+        refreshTokenFromCookie
+      );
+      if (!token) {
+        return res.status(401).json({ message: "Invalid Token" });
+      }
+    } catch (error) {
+      return res.status(500).json({ message: "Internal Error" });
+    }
+    // check if valid user
+    const user = await userService.findUser({ _id: userData._id });
+    if (!user) {
+      return res.status(404).json({ message: "No user" });
+    }
+
+    // generate new tokens
+    const { refreshToken, accessToken } = await tokenService.generateTokens({
+      _id: userData._id,
+    });
+    // update refresh token in db
+    try {
+      await tokenService.updateRefreshToken(user._id, refreshToken);
+    } catch (error) {
+      return res.status(500).json({ message: "Internal Error" });
+    }
+    // set in cookie
+    res.cookie("refreshToken", refreshToken, {
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      httpOnly: true,
+    });
+    res.cookie("accessToken", accessToken, {
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      httpOnly: true,
+    });
+
+    const userDto = new UserDto(user);
+    res.json({ user: userDto, auth: true });
+    // send response
   }
 }
 module.exports = new AuthController();

@@ -29,7 +29,7 @@ const StepOtp = () => {
   };
 
   return (
-    <div className={styles.cardWrapper}>
+    <div className="cardWrapper">
       <Card title="Enter the code you have just received" icon="lock48">
         <TextInput value={otp} onChange={handleOtp} />
         <div>
