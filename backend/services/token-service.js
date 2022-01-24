@@ -15,30 +15,39 @@ class TokenService {
   async storeRefreshToken(token, userId) {
     try {
       await refreshModel.create({
-        token: token,
-        userId: userId,
+        token,
+        userId,
       });
-    } catch (error) {
-      console.log(error.message);
+    } catch (err) {
+      console.log(err.message);
     }
   }
+
   async verifyAccessToken(token) {
+    console.log("accessTokem in verifyAccessToken:", token);
     return jwt.verify(token, accessTokenSecret);
   }
-  async verifyRefreshToken(token) {
-    return jwt.verify(token, refreshTokenSecret);
+
+  async verifyRefreshToken(refreshToken) {
+    return jwt.verify(refreshToken, refreshTokenSecret);
   }
+
   async findRefreshToken(userId, refreshToken) {
     return await refreshModel.findOne({
-      _id: userId,
+      userId: userId,
       token: refreshToken,
     });
   }
+
   async updateRefreshToken(userId, refreshToken) {
     return await refreshModel.updateOne(
       { userId: userId },
       { token: refreshToken }
     );
+  }
+
+  async removeToken(refreshToken) {
+    return await refreshModel.deleteOne({ token: refreshToken });
   }
 }
 module.exports = new TokenService();

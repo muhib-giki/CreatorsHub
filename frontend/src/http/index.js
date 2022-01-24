@@ -21,13 +21,15 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     if (
+      error &&
+      error.response &&
       error.response.status === 401 &&
       originalRequest &&
       !error.config._isRetry
     ) {
       originalRequest._isRetry = true;
       try {
-        const response = await axios.get(`http://localhost:4000/api/refresh`, {
+        await axios.get(`http://localhost:4000/api/refresh`, {
           withCredentials: true,
         });
         return api.request(originalRequest);

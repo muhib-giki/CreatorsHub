@@ -8,6 +8,7 @@ module.exports = async function (req, res, next) {
       throw new Error();
     }
     const userData = await tokenService.verifyAccessToken(accessToken);
+    console.log("userData in auth-middleware:", userData);
     if (!userData) {
       throw new Error();
     }
